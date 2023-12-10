@@ -1,6 +1,6 @@
 {
     "name": "com.radioactivegoat.events",
-    "rootNamespace": "",
+    "rootNamespace": "RG.Events",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

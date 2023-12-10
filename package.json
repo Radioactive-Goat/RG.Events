@@ -1,22 +1,19 @@
 {
-    "name": "com.radioactivegoat.events",
-    "version": "0.1.0",
-    "displayName": "RGS.Events",
-    "description": "Type based Event System",
-    "unity": "2022.3",
-    "documentationUrl": "https://example.com/",
-    "changelogUrl": "https://example.com/changelog.html",
-    "licensesUrl": "https://example.com/licensing.html",
-    "dependencies": {
-   },
-   "keywords": [
-      "Events",
-      "Event System",
-      "Delegates"
-    ],
-    "author": {
-      "name": "Radioactive Goat",
-      "email": "radioactivegoatstudios@gmail.com",
-      "url": "https://radioactivegoat.github.io"
-    }
+  "name": "com.radioactivegoat.events",
+  "version": "0.2.1",
+  "displayName": "RG.Events",
+  "description": "Type based Event System",
+  "unity": "2022.3",
+  "documentationUrl": "https://github.com/Radioactive-Goat/RG.Events/wiki",
+  "licensesUrl": "https://raw.githubusercontent.com/Radioactive-Goat/RG.Events/master/LICENSE.md",
+  "keywords": [
+    "Events",
+    "Event System",
+    "Delegates"
+  ],
+  "author": {
+    "name": "Radioactive Goat",
+    "email": "radioactivegoatstudios@gmail.com",
+    "url": "https://radioactivegoat.github.io"
   }
+}
