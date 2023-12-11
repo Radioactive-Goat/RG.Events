@@ -2,7 +2,7 @@
   "name": "com.radioactivegoat.events",
   "version": "0.2.1",
   "displayName": "RG.Events",
-  "description": "Type based Event System",
+  "description": "Type based Event System for Unity.",
   "unity": "2022.3",
   "documentationUrl": "https://github.com/Radioactive-Goat/RG.Events/wiki",
   "licensesUrl": "https://raw.githubusercontent.com/Radioactive-Goat/RG.Events/master/LICENSE.md",
