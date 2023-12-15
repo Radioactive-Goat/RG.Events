@@ -29,6 +29,7 @@ namespace RG.Events
             EventSystem.Instance.AddToInvokeStack(new InvokationMetaData
             {
                 EventName = GetType().FullName,
+                TimeStamp = DateTime.Now.ToString("T"),
                 ArgumentData = args
             });
 #endif

@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -8,99 +7,173 @@ namespace RG.Events
 {
     public class EventDebugger : EditorWindow
     {
-        private Vector2 _mainHorizontalScrollPosition;
-        private Vector2 _invokeStackScrollPosition;
-        private Type _currentSelection = null;
+        [SerializeField]
+        private VisualTreeAsset _visualTreeAsset = default;
+
+        private Label _statusLabel = null;
+        private ListView _eventList = null;
+        private ListView _subscriberList = null;
+        private ScrollView _invokeStack = null;
+        private UnsignedIntegerField _bufferSize = null;
+
+        private EventCallback<ChangeEvent<uint>> _onBufferSizeChanged = (change) => { EventSystem.Instance.invokeStackBufferSize = change.newValue; };
 
         [MenuItem("Radioactive Goat/Event System/Event Debugger")]
-        static void Init()
+        public static void ShowEventDebuggerWindow()
         {
-            var window = (EventDebugger)GetWindow(typeof(EventDebugger));
-            window.titleContent = new GUIContent("Event Debugger");
-            window.Show();
+            EventDebugger wnd = GetWindow<EventDebugger>();
+            wnd.titleContent = new GUIContent("Event Debugger");
+        }
+
+        private void OnPlayModeStateChange(PlayModeStateChange stateChange)
+        {
+            CheckStatus();
+
+            if (stateChange == PlayModeStateChange.EnteredEditMode)
+            {
+                _bufferSize.value = 0;
+                _bufferSize.UnregisterValueChangedCallback(_onBufferSizeChanged);
+                ClearAllLists();
+                _invokeStack.Clear();
+                return;
+            }
+
+            if (stateChange == PlayModeStateChange.EnteredPlayMode)
+            {
+                _bufferSize.value = EventSystem.Instance.invokeStackBufferSize;
+                _bufferSize.RegisterValueChangedCallback(_onBufferSizeChanged);
+                BuildAllLists();
+            }
+
+        }
+
+        private void OnDestroy()
+        {
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChange;
+            ClearAllLists();
+            _invokeStack.Clear();
         }
 
         private void OnInspectorUpdate()
         {
-            Repaint();
+            if (EditorApplication.isPlaying)
+            {
+                BuildAllLists();
+                _eventList.Rebuild();
+                _subscriberList.Rebuild();
+            }
         }
 
-        private void OnGUI()
+        public void CreateGUI()
         {
-            if (!Application.isPlaying)
+            _visualTreeAsset.CloneTree(rootVisualElement);
+
+            _statusLabel = rootVisualElement.Q<Label>("Status");
+            _eventList = rootVisualElement.Q<ListView>("EventList");
+            _subscriberList = rootVisualElement.Q<ListView>("SubscriberList");
+            _invokeStack = rootVisualElement.Q<ScrollView>("InvokeList");
+            _bufferSize = rootVisualElement.Q<UnsignedIntegerField>("BufferSize");
+
+            EditorApplication.playModeStateChanged += OnPlayModeStateChange;
+
+            if (!CheckStatus())
             {
-                EditorGUILayout.HelpBox("Editor not in Play Mode!", MessageType.Error);
                 return;
             }
 
-            if(EventSystem.Instance == null)
-            {
-                EditorGUILayout.HelpBox("Event System not running!", MessageType.Error);
-                return;
-            }
+            _bufferSize.value = EventSystem.Instance.invokeStackBufferSize;
 
-            _mainHorizontalScrollPosition = EditorGUILayout.BeginScrollView(_mainHorizontalScrollPosition);
-            EditorGUILayout.BeginHorizontal();
+            BuildInvokeStack();
 
-            EditorGUILayout.BeginVertical(); //Event List
-            EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-            foreach(var item in EventSystem.Instance.Events.ToList())
-            {
-                if (GUILayout.Button(new GUIContent(item.Key.Name)))
-                {
-                    _currentSelection = item.Key;
-                }
-            }
-            EditorGUILayout.EndVertical(); //Event List
-
-            EditorGUILayout.BeginVertical(); //Callback List
-            EditorGUILayout.LabelField("Callback List", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-            if (_currentSelection != null)
-            {
-                foreach (var callback in EventSystem.Instance.Events[_currentSelection].Callbacks)
-                {
-                    EditorGUILayout.LabelField(callback);
-                }
-            }
-            EditorGUILayout.EndVertical(); //Calback List
-
-            EditorGUILayout.BeginVertical(); //Invoke Stack
-            EditorGUILayout.LabelField("Invoke Stack", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Buffer Size");
-            EventSystem.Instance.InvokeStackBufferSize = EditorGUILayout.IntField(EventSystem.Instance.InvokeStackBufferSize);
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.Space();
-            _invokeStackScrollPosition = EditorGUILayout.BeginScrollView(_invokeStackScrollPosition);
-            EditorGUILayout.BeginVertical();
-            foreach(var invoke in EventSystem.Instance.InvokeStack) 
-            {
-                EditorGUILayout.LabelField(invoke.EventName, EditorStyles.boldLabel);
-                EditorGUI.indentLevel++;
-                EditorGUILayout.BeginVertical();
-                foreach (var field in invoke.ArgumentData.GetType().GetFields())
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(field.Name);
-                    EditorGUILayout.Space();
-                    EditorGUILayout.LabelField(field.GetValue(invoke.ArgumentData).ToString());
-                    EditorGUILayout.EndHorizontal();
-                }
-                EditorGUILayout.EndVertical();
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Separator();
-            }
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.EndScrollView();
-            EditorGUILayout.EndVertical(); //Invoke Stack
-
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.EndScrollView();
+            EventSystem.Instance.invokeEvent.AddListener(UpdateInvokeStack);
         }
 
+        private Label BuildListLabel()
+        {
+            Label label = new Label();
 
+            label.style.unityTextAlign = TextAnchor.MiddleLeft;
+
+            return label;
+        }
+
+        private void BuildAllLists()
+        {
+            _eventList.itemsSource = EventSystem.Instance.Events.ToList();
+            _eventList.makeItem = BuildListLabel;
+            _eventList.bindItem = (e, i) => (e as Label).text = EventSystem.Instance.Events.ToList()[i].Key.FullName;
+            _eventList.selectionType = SelectionType.Single;
+
+            if (_eventList.selectedIndex < EventSystem.Instance.Events.ToList().Count && _eventList.selectedIndex >= 0)
+            {
+                _subscriberList.itemsSource = EventSystem.Instance.Events.ToList()[_eventList.selectedIndex].Value.Callbacks;
+                _subscriberList.makeItem = BuildListLabel;
+                _subscriberList.bindItem = (e, i) => (e as Label).text = EventSystem.Instance.Events.ToList()[_eventList.selectedIndex].Value.Callbacks[i];
+                _subscriberList.selectionType = SelectionType.None;
+            }
+        }
+
+        private void ClearAllLists()
+        {
+            _eventList.itemsSource = null;
+            _eventList.Rebuild();
+            _subscriberList.itemsSource = null;
+            _subscriberList.Rebuild();
+        }
+
+        private void BuildInvokeStack()
+        {
+            _invokeStack.Clear();
+            foreach (var item in EventSystem.Instance.invokeStack)
+            {
+                var foldout = new Foldout();
+                foldout.text = $"[{item.TimeStamp}] {item.EventName}";
+                foreach (var data in item.ArgumentData.GetType().GetFields())
+                {
+                    var tf = new TextField(data.Name);
+                    tf.value = data.GetValue(item.ArgumentData).ToString();
+                    tf.isReadOnly = true;
+                    foldout.Add(tf);
+                }
+                foldout.value = false;
+                _invokeStack.Add(foldout);
+            }
+        }
+
+        private void UpdateInvokeStack(InvokationMetaData arg)
+        {
+            var foldout = new Foldout();
+            foldout.text = $"[{arg.TimeStamp}] {arg.EventName}";
+            foreach (var data in arg.ArgumentData.GetType().GetFields())
+            {
+                var tf = new TextField(data.Name);
+                tf.value = data.GetValue(arg.ArgumentData).ToString();
+                tf.isReadOnly = true;
+                foldout.Add(tf);
+            }
+            foldout.value = false;
+            _invokeStack.Add(foldout);
+        }
+
+        private bool CheckStatus()
+        {
+            if (!EditorApplication.isPlaying)
+            {
+                _statusLabel.text = "Game is not running!";
+                _statusLabel.style.color = Color.red;
+                return false;
+            }
+
+            if (EventSystem.Instance == null)
+            {
+                _statusLabel.text = "Event System not initialized!";
+                _statusLabel.style.color = Color.red;
+                return false;
+            }
+
+            _statusLabel.text = "All OK!";
+            _statusLabel.style.color = Color.green;
+            return true;
+        }
     }
 }

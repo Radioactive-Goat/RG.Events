@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Events;
 
 [assembly: InternalsVisibleTo("com.radioactivegoat.events.editor")]
 
@@ -12,6 +12,7 @@ namespace RG.Events
     public struct InvokationMetaData
     {
         public string EventName;
+        public string TimeStamp;
         public object ArgumentData;
     }
 #endif
@@ -24,8 +25,9 @@ namespace RG.Events
 
 #if UNITY_EDITOR
         internal Dictionary<Type, IEvent> Events { get {  return _events; } }
-        internal int InvokeStackBufferSize { get; set; } = 50;
-        internal List<InvokationMetaData> InvokeStack { get; set; } = new List<InvokationMetaData>();
+        internal uint invokeStackBufferSize = 100;
+        internal List<InvokationMetaData> invokeStack = new List<InvokationMetaData>();
+        internal UnityEvent<InvokationMetaData> invokeEvent = new UnityEvent<InvokationMetaData>();
 #endif
 
         private void Awake()
@@ -69,12 +71,14 @@ namespace RG.Events
 #if UNITY_EDITOR
         internal void AddToInvokeStack(InvokationMetaData data)
         {
-            if(InvokeStack.Count > InvokeStackBufferSize) 
+            if(invokeStack.Count > invokeStackBufferSize) 
             {
-                InvokeStack.RemoveAt(0);
+                invokeStack.RemoveAt(0);
             }
 
-            InvokeStack.Add(data);
+            invokeStack.Add(data);
+
+            invokeEvent.Invoke(data);
         }
 #endif
     }
