@@ -16,7 +16,7 @@ namespace RG.Events
         private ScrollView _invokeStack = null;
         private UnsignedIntegerField _bufferSize = null;
 
-        private EventCallback<ChangeEvent<uint>> _onBufferSizeChanged = (change) => { EventSystem.Instance.invokeStackBufferSize = change.newValue; };
+        private EventCallback<ChangeEvent<uint>> _onBufferSizeChanged = (change) => { EventSystem.Instance.InvokeStackBufferSize = change.newValue; };
 
         [MenuItem("Radioactive Goat/Event System/Event Debugger")]
         public static void ShowEventDebuggerWindow()
@@ -40,7 +40,7 @@ namespace RG.Events
 
             if (stateChange == PlayModeStateChange.EnteredPlayMode)
             {
-                _bufferSize.value = EventSystem.Instance.invokeStackBufferSize;
+                _bufferSize.value = EventSystem.Instance.InvokeStackBufferSize;
                 _bufferSize.RegisterValueChangedCallback(_onBufferSizeChanged);
                 BuildAllLists();
             }
@@ -81,11 +81,11 @@ namespace RG.Events
                 return;
             }
 
-            _bufferSize.value = EventSystem.Instance.invokeStackBufferSize;
+            _bufferSize.value = EventSystem.Instance.InvokeStackBufferSize;
 
             BuildInvokeStack();
 
-            EventSystem.Instance.invokeEvent.AddListener(UpdateInvokeStack);
+            EventSystem.Instance.OnEventInvoked.AddListener(UpdateInvokeStack);
         }
 
         private Label BuildListLabel()
@@ -124,7 +124,7 @@ namespace RG.Events
         private void BuildInvokeStack()
         {
             _invokeStack.Clear();
-            foreach (var item in EventSystem.Instance.invokeStack)
+            foreach (var item in EventSystem.Instance.InvokeStack)
             {
                 var foldout = new Foldout();
                 foldout.text = $"[{item.TimeStamp}] {item.EventName}";

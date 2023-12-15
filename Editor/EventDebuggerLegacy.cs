@@ -70,12 +70,12 @@ namespace RG.Events
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Buffer Size");
-            EventSystem.Instance.invokeStackBufferSize = (uint)EditorGUILayout.IntField((int)EventSystem.Instance.invokeStackBufferSize);
+            EventSystem.Instance.InvokeStackBufferSize = (uint)EditorGUILayout.IntField((int)EventSystem.Instance.InvokeStackBufferSize);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
             _invokeStackScrollPosition = EditorGUILayout.BeginScrollView(_invokeStackScrollPosition);
             EditorGUILayout.BeginVertical();
-            foreach(var invoke in EventSystem.Instance.invokeStack) 
+            foreach(var invoke in EventSystem.Instance.InvokeStack) 
             {
                 EditorGUILayout.LabelField(invoke.EventName, EditorStyles.boldLabel);
                 EditorGUI.indentLevel++;

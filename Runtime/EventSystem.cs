@@ -8,27 +8,26 @@ using UnityEngine.Events;
 
 namespace RG.Events
 {
-#if UNITY_EDITOR
-    public struct InvokationMetaData
-    {
-        public string EventName;
-        public string TimeStamp;
-        public object ArgumentData;
-    }
-#endif
-    public class EventSystem : MonoBehaviour
+    public class EventSystem : MonoBehaviour, IEventSystem
     {
         private static EventSystem _instance;
-        public static EventSystem Instance => _instance;
+        public static IEventSystem Instance => _instance;
+
+        Dictionary<Type, IEvent> IEventSystem.Events => _events;
+
+        uint IEventSystem.InvokeStackBufferSize { get => _invokeStackBufferSize; set => _invokeStackBufferSize = value; }
+
+        List<InvokationMetaData> IEventSystem.InvokeStack => _invokeStack;
+
+        UnityEvent<InvokationMetaData> IEventSystem.OnEventInvoked => _eventInvoked;
 
         private Dictionary<Type, IEvent> _events = new Dictionary<Type, IEvent>();
 
-#if UNITY_EDITOR
-        internal Dictionary<Type, IEvent> Events { get {  return _events; } }
-        internal uint invokeStackBufferSize = 100;
-        internal List<InvokationMetaData> invokeStack = new List<InvokationMetaData>();
-        internal UnityEvent<InvokationMetaData> invokeEvent = new UnityEvent<InvokationMetaData>();
-#endif
+        private uint _invokeStackBufferSize = 100u;
+
+        private List<InvokationMetaData> _invokeStack = new List<InvokationMetaData>();
+
+        private UnityEvent<InvokationMetaData> _eventInvoked = new UnityEvent<InvokationMetaData>();
 
         private void Awake()
         {
@@ -69,16 +68,16 @@ namespace RG.Events
         }
 
 #if UNITY_EDITOR
-        internal void AddToInvokeStack(InvokationMetaData data)
+        void IEventSystem.AddToInvokeStack(InvokationMetaData data)
         {
-            if(invokeStack.Count > invokeStackBufferSize) 
+            if(_invokeStack.Count > _invokeStackBufferSize) 
             {
-                invokeStack.RemoveAt(0);
+                _invokeStack.RemoveAt(0);
             }
 
-            invokeStack.Add(data);
+            _invokeStack.Add(data);
 
-            invokeEvent.Invoke(data);
+            _eventInvoked.Invoke(data);
         }
 #endif
     }
