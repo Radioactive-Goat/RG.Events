@@ -106,9 +106,9 @@ namespace RG.Events
 
             if (_eventList.selectedIndex < EventSystem.Instance.Events.ToList().Count && _eventList.selectedIndex >= 0)
             {
-                _subscriberList.itemsSource = EventSystem.Instance.Events.ToList()[_eventList.selectedIndex].Value.Callbacks;
+                _subscriberList.itemsSource = EventSystem.Instance.Events.ToList()[_eventList.selectedIndex].Value.Subscribers;
                 _subscriberList.makeItem = BuildListLabel;
-                _subscriberList.bindItem = (e, i) => (e as Label).text = EventSystem.Instance.Events.ToList()[_eventList.selectedIndex].Value.Callbacks[i];
+                _subscriberList.bindItem = (e, i) => (e as Label).text = EventSystem.Instance.Events.ToList()[_eventList.selectedIndex].Value.Subscribers[i];
                 _subscriberList.selectionType = SelectionType.None;
             }
         }

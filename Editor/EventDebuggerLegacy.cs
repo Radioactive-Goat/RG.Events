@@ -53,14 +53,14 @@ namespace RG.Events
             }
             EditorGUILayout.EndVertical(); //Event List
 
-            EditorGUILayout.BeginVertical(); //Callback List
-            EditorGUILayout.LabelField("Callback List", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical(); //Subscriber List
+            EditorGUILayout.LabelField("Subscriber List", EditorStyles.boldLabel);
             EditorGUILayout.Space();
             if (_currentSelection != null)
             {
-                foreach (var callback in EventSystem.Instance.Events[_currentSelection].Callbacks)
+                foreach (var subscriber in EventSystem.Instance.Events[_currentSelection].Subscribers)
                 {
-                    EditorGUILayout.LabelField(callback);
+                    EditorGUILayout.LabelField(subscriber);
                 }
             }
             EditorGUILayout.EndVertical(); //Calback List

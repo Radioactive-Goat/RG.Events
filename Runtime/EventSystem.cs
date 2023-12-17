@@ -61,10 +61,10 @@ namespace RG.Events
             evnt.Invoke(args);
         }
 
-        public void AddCallback<TEvent, TEventArgs>(Action<TEventArgs> callback) where TEvent : IEvent where TEventArgs : IEventArgs
+        public void Subscribe<TEvent, TEventArgs>(Action<TEventArgs> subscriber) where TEvent : IEvent where TEventArgs : IEventArgs
         {
             var evnt = (IEvent<TEventArgs>)_events[typeof(TEvent)];
-            evnt.AddCallback(callback);
+            evnt.Subscribe(subscriber);
         }
 
 #if UNITY_EDITOR

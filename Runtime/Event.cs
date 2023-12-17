@@ -6,24 +6,24 @@ namespace RG.Events
 {
     public abstract class Event<T> : IEvent<T> where T : IEventArgs
     {
-        private Action<T> _callbacks;
+        private Action<T> _subscribers;
 
 #if UNITY_EDITOR
-        private List<string> _strigizedCallbacks = new List<string>();
-        List<string> IEvent.Callbacks { get => _strigizedCallbacks; }
+        private List<string> _strigizedSubscribers = new List<string>();
+        List<string> IEvent.Subscribers { get => _strigizedSubscribers; }
 #endif
 
-        public void AddCallback(Action<T> callback)
+        public void Subscribe(Action<T> subscriber)
         {
-            _callbacks += callback;
+            _subscribers += subscriber;
 #if UNITY_EDITOR
-            _strigizedCallbacks.Add(callback.GetMethodInfo().DeclaringType.FullName + "." + callback.GetMethodInfo().Name);
+            _strigizedSubscribers.Add(subscriber.GetMethodInfo().DeclaringType.FullName + "." + subscriber.GetMethodInfo().Name);
 #endif
         }
 
         public void Invoke(T args)
         {
-            _callbacks.Invoke(args);
+            _subscribers.Invoke(args);
 
 #if UNITY_EDITOR
             EventSystem.Instance.AddToInvokeStack(new InvokationMetaData
