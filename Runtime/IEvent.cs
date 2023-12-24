@@ -13,6 +13,7 @@ namespace RG.Events
     public interface IEvent<T> : IEvent where T : IEventArgs
     {
         void Subscribe(Action<T> subscriber);
+        void Unsubscribe(Action<T> subscriber);
         void Invoke(T args);
     }
 }
