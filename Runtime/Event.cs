@@ -21,9 +21,20 @@ namespace RG.Events
 #endif
         }
 
+        public void Unsubscribe(Action<T> subscriber) 
+        {
+            _subscribers -= subscriber;
+#if UNITY_EDITOR
+            _strigizedSubscribers.Remove(subscriber.GetMethodInfo().DeclaringType.FullName + "." + subscriber.GetMethodInfo().Name);
+#endif
+        }
+
         public void Invoke(T args)
         {
-            _subscribers.Invoke(args);
+            if (_subscribers != null)
+            {
+                _subscribers.Invoke(args);
+            }
 
 #if UNITY_EDITOR
             EventSystem.Instance.AddToInvokeStack(new InvokationMetaData

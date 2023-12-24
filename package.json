@@ -1,6 +1,6 @@
 {
   "name": "com.radioactivegoat.events",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "displayName": "RG.Events",
   "description": "Type based Event System for Unity.",
   "unity": "2022.3",
