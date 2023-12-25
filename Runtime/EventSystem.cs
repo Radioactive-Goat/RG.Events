@@ -67,6 +67,12 @@ namespace RG.Events
             evnt.Subscribe(subscriber);
         }
 
+        public void Unsubscribe<TEvent, TEventArgs>(Action<TEventArgs> subscriber) where TEvent : IEvent where TEventArgs : IEventArgs
+        {
+            var evnt = (IEvent<TEventArgs>)_events[typeof(TEvent)];
+            evnt.Unsubscribe(subscriber);
+        }
+
 #if UNITY_EDITOR
         void IEventSystem.AddToInvokeStack(InvokationMetaData data)
         {
