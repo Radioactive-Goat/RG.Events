@@ -13,6 +13,7 @@ namespace RG.Events
         private static EventSystem _instance;
         public static IEventSystem Instance => _instance;
 
+#if UNITY_EDITOR
         Dictionary<Type, IEvent> IEventSystem.Events => _events;
 
         uint IEventSystem.InvokeStackBufferSize { get => _invokeStackBufferSize; set => _invokeStackBufferSize = value; }
@@ -21,13 +22,15 @@ namespace RG.Events
 
         UnityEvent<InvokationMetaData> IEventSystem.OnEventInvoked => _eventInvoked;
 
-        private Dictionary<Type, IEvent> _events = new Dictionary<Type, IEvent>();
-
         private uint _invokeStackBufferSize = 100u;
 
         private List<InvokationMetaData> _invokeStack = new List<InvokationMetaData>();
 
         private UnityEvent<InvokationMetaData> _eventInvoked = new UnityEvent<InvokationMetaData>();
+#endif
+
+        private Dictionary<Type, IEvent> _events = new Dictionary<Type, IEvent>();
+
 
         private void Awake()
         {
