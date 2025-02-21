@@ -14,7 +14,7 @@ namespace RG.Events
         public static IEventSystem Instance => _instance;
 
 #if UNITY_EDITOR
-        Dictionary<Type, IEvent> IEventSystem.Events => _events;
+        Dictionary<Type, EventDescriptor> IEventSystem.Events => _events;
 
         uint IEventSystem.InvokeStackBufferSize { get => _invokeStackBufferSize; set => _invokeStackBufferSize = value; }
 
@@ -29,7 +29,7 @@ namespace RG.Events
         private UnityEvent<InvokationMetaData> _eventInvoked = new UnityEvent<InvokationMetaData>();
 #endif
 
-        private Dictionary<Type, IEvent> _events = new Dictionary<Type, IEvent>();
+        private Dictionary<Type, EventDescriptor> _events = new Dictionary<Type, EventDescriptor>();
 
 
         private void Awake()
@@ -45,7 +45,7 @@ namespace RG.Events
                 return;
             }
 
-            _events[typeof(T)] = new T();
+            _events[typeof(T)] = new EventDescriptor();
         }
 
         public void DeRegister<T>() where T : IEvent
@@ -53,27 +53,19 @@ namespace RG.Events
             _events.Remove(typeof(T));
         }
 
-        public T GetEvent<T>() where T : IEvent
+        public void Invoke<T>(T newEvent) where T : IEvent
         {
-            return (T)_events[typeof(T)];
+            _events[typeof(T)].Invoke(newEvent);
         }
 
-        public void Invoke<TEvent, TEventArgs>(TEventArgs args) where TEvent : IEvent where TEventArgs : IEventArgs
+        public void Subscribe<T>(Action<IEvent> sub) where T : IEvent
         {
-            var evnt = (IEvent<TEventArgs>)_events[typeof(TEvent)];
-            evnt.Invoke(args);
+            _events[typeof(T)].Subscribe(sub);
         }
 
-        public void Subscribe<TEvent, TEventArgs>(Action<TEventArgs> subscriber) where TEvent : IEvent where TEventArgs : IEventArgs
+        public void Unsubscribe<T>(Action<IEvent> sub) where T : IEvent
         {
-            var evnt = (IEvent<TEventArgs>)_events[typeof(TEvent)];
-            evnt.Subscribe(subscriber);
-        }
-
-        public void Unsubscribe<TEvent, TEventArgs>(Action<TEventArgs> subscriber) where TEvent : IEvent where TEventArgs : IEventArgs
-        {
-            var evnt = (IEvent<TEventArgs>)_events[typeof(TEvent)];
-            evnt.Unsubscribe(subscriber);
+            _events[typeof(T)].Unsubscribe(sub);
         }
 
 #if UNITY_EDITOR

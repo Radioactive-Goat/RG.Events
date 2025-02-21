@@ -58,7 +58,7 @@ namespace RG.Events
             EditorGUILayout.Space();
             if (_currentSelection != null)
             {
-                foreach (var subscriber in EventSystem.Instance.Events[_currentSelection].Subscribers)
+                foreach (var subscriber in EventSystem.Instance.Events[_currentSelection].StringizedSubscribers)
                 {
                     EditorGUILayout.LabelField(subscriber);
                 }

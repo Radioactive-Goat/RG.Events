@@ -4,16 +4,16 @@ using System.Reflection;
 
 namespace RG.Events
 {
-    public abstract class Event<T> : IEvent<T> where T : IEventArgs
+    internal class EventDescriptor
     {
-        private Action<T> _subscribers;
+        private Action<IEvent> _subscribers;
 
 #if UNITY_EDITOR
         private List<string> _strigizedSubscribers = new List<string>();
-        List<string> IEvent.Subscribers { get => _strigizedSubscribers; }
+        internal List<string> StringizedSubscribers => _strigizedSubscribers;
 #endif
 
-        public void Subscribe(Action<T> subscriber)
+        internal void Subscribe(Action<IEvent> subscriber)
         {
             _subscribers += subscriber;
 #if UNITY_EDITOR
@@ -21,7 +21,7 @@ namespace RG.Events
 #endif
         }
 
-        public void Unsubscribe(Action<T> subscriber) 
+        public void Unsubscribe(Action<IEvent> subscriber) 
         {
             _subscribers -= subscriber;
 #if UNITY_EDITOR
@@ -29,19 +29,19 @@ namespace RG.Events
 #endif
         }
 
-        public void Invoke(T args)
+        public void Invoke(IEvent newEvent)
         {
             if (_subscribers != null)
             {
-                _subscribers.Invoke(args);
+                _subscribers.Invoke(newEvent);
             }
 
 #if UNITY_EDITOR
             EventSystem.Instance.AddToInvokeStack(new InvokationMetaData
             {
-                EventName = GetType().FullName,
+                EventName = newEvent.GetType().FullName,
                 TimeStamp = DateTime.Now.ToString("T"),
-                ArgumentData = args
+                ArgumentData = newEvent
             });
 #endif
         }

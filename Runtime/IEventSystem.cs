@@ -17,12 +17,12 @@ namespace RG.Events
     {
         public void Register<T>(bool force = false) where T : IEvent, new();
         public void DeRegister<T>() where T : IEvent;
-        public T GetEvent<T>() where T : IEvent;
-        public void Invoke<TEvent, TEventArgs>(TEventArgs args) where TEvent : IEvent where TEventArgs : IEventArgs;
-        public void Subscribe<TEvent, TEventArgs>(Action<TEventArgs> subscriber) where TEvent : IEvent where TEventArgs : IEventArgs;
+        public void Invoke<T>(T newEvent) where T : IEvent;
+        public void Subscribe<T>(Action<IEvent> sub) where T : IEvent;
+        public void Unsubscribe<T>(Action<IEvent> sub) where T : IEvent;
 
 #if UNITY_EDITOR
-        internal Dictionary<Type, IEvent> Events { get; }
+        internal Dictionary<Type, EventDescriptor> Events { get; }
         internal uint InvokeStackBufferSize { get; set; }
         internal List<InvokationMetaData> InvokeStack { get; }
         internal UnityEvent<InvokationMetaData> OnEventInvoked { get; }

@@ -1,9 +1,9 @@
 {
   "name": "com.radioactivegoat.events",
-  "version": "0.9.5",
+  "version": "1.0.0",
   "displayName": "RG.Events",
   "description": "Type based Event System for Unity.",
-  "unity": "2022.3",
+  "unity": "6000.0",
   "documentationUrl": "https://github.com/Radioactive-Goat/RG.Events/wiki",
   "licensesUrl": "https://raw.githubusercontent.com/Radioactive-Goat/RG.Events/master/LICENSE.md",
   "keywords": [
@@ -15,5 +15,6 @@
     "name": "Radioactive Goat",
     "email": "radioactivegoatstudios@gmail.com",
     "url": "https://radioactivegoat.github.io"
-  }
+  },
+  "unityRelease": "25f1"
 }

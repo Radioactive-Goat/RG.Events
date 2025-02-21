@@ -18,7 +18,7 @@ namespace RG.Events
                 return;
             }
 
-            if (FindObjectOfType<EventSystem>())
+            if (FindFirstObjectByType<EventSystem>())
             {
                 EditorUtility.DisplayDialog("Already exists", "An Event System already exists in this scene." +
                     "Please remove it before trying again.", "OK");
