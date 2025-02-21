@@ -8,10 +8,17 @@ using UnityEngine.Events;
 
 namespace RG.Events
 {
-    public class EventSystem : MonoBehaviour, IEventSystem
+    public class EventSystem : IEventSystem
     {
         private static EventSystem _instance;
         public static IEventSystem Instance => _instance;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        internal static void Initialize()
+        {
+            _instance = new EventSystem();
+        }
+
 
 #if UNITY_EDITOR
         Dictionary<Type, EventDescriptor> IEventSystem.Events => _events;
@@ -30,13 +37,6 @@ namespace RG.Events
 #endif
 
         private Dictionary<Type, EventDescriptor> _events = new Dictionary<Type, EventDescriptor>();
-
-
-        private void Awake()
-        {
-            _instance = this;
-            DontDestroyOnLoad(this);
-        }
 
         public void Register<T>(bool force = false) where T : IEvent, new()
         {
