@@ -38,7 +38,7 @@ namespace RG.Events
 
         private Dictionary<Type, EventDescriptor> _events = new Dictionary<Type, EventDescriptor>();
 
-        public void Register<T>(bool force = false) where T : IEvent, new()
+        public void Register<T>(bool force = false) where T : class, IEvent, new()
         {
             if(_events.ContainsKey(typeof(T)) && !force)
             {
@@ -48,22 +48,23 @@ namespace RG.Events
             _events[typeof(T)] = new EventDescriptor();
         }
 
-        public void DeRegister<T>() where T : IEvent
+        public void DeRegister<T>() where T : class, IEvent, new()
         {
             _events.Remove(typeof(T));
         }
 
-        public void Invoke<T>(T newEvent) where T : IEvent
+        public void Invoke<T>(T newEvent) where T : class, IEvent, new()
         {
             _events[typeof(T)].Invoke(newEvent);
         }
 
-        public void Subscribe<T>(Action<IEvent> sub) where T : IEvent
+        public void Subscribe<T>(Action<IEvent> sub) where T : class, IEvent, new()
         {
-            _events[typeof(T)].Subscribe(sub);
+            Register<T>(); // #DBDM
+            _events[typeof(T)].Subscribe((e) => { sub(e as T); });
         }
 
-        public void Unsubscribe<T>(Action<IEvent> sub) where T : IEvent
+        public void Unsubscribe<T>(Action<IEvent> sub) where T : class, IEvent, new()
         {
             _events[typeof(T)].Unsubscribe(sub);
         }

@@ -15,11 +15,11 @@ namespace RG.Events
 
     public interface IEventSystem
     {
-        public void Register<T>(bool force = false) where T : IEvent, new();
-        public void DeRegister<T>() where T : IEvent;
-        public void Invoke<T>(T newEvent) where T : IEvent;
-        public void Subscribe<T>(Action<IEvent> sub) where T : IEvent;
-        public void Unsubscribe<T>(Action<IEvent> sub) where T : IEvent;
+        public void Register<T>(bool force = false) where T : class, IEvent, new();
+        public void DeRegister<T>() where T : class, IEvent, new();
+        public void Invoke<T>(T newEvent) where T : class, IEvent, new();
+        public void Subscribe<T>(Action<IEvent> sub) where T : class, IEvent, new();
+        public void Unsubscribe<T>(Action<IEvent> sub) where T : class, IEvent, new();
 
 #if UNITY_EDITOR
         internal Dictionary<Type, EventDescriptor> Events { get; }
